@@ -20,7 +20,10 @@ services:
             - hermes
 
     hermes-webui:
-        image: ghcr.io/nesquena/hermes-webui:latest
+        build:
+            context: .
+            dockerfile: Dockerfile.webui
+        image: puda-hermes-webui:latest
         restart: unless-stopped
         depends_on:
             - hermes-agent

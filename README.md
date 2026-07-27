@@ -34,7 +34,7 @@ Then start the frontend:
 
 ```bash
 docker compose pull
-docker compose up -d
+docker compose up -d --build
 ```
 
 Open <http://localhost:8787>.

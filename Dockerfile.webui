@@ -1,0 +1,14 @@
+FROM ghcr.io/nesquena/hermes-webui:latest
+
+USER root
+
+# The current Hermes Agent package intentionally rejects wheel/sdist builds.
+# WebUI's two-container initializer stages the agent source in /tmp, so install
+# that staged checkout in editable mode and keep it for the lifetime of the
+# container.
+RUN sed -i \
+      '/uv pip install "$_stage_src\[all\]"/s/uv pip install/uv pip install -e/' \
+      /hermeswebui_init.bash \
+    && sed -i \
+      '/uv pip install -e "$_stage_src\[all\]"/,+2{/rm -rf "$_stage_src"/d;}' \
+      /hermeswebui_init.bash
