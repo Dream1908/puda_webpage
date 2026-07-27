@@ -37,6 +37,12 @@ docker compose pull
 docker compose up -d --build
 ```
 
+`docker compose pull` updates the published Hermes Agent image. The Web UI is
+built locally from `Dockerfile.webui` because it contains a compatibility patch;
+it is not pulled as a `puda-hermes-webui` image from Docker Hub. The `--build`
+option rebuilds that local image when the Dockerfile or its upstream base image
+changes.
+
 Open <http://localhost:8787>.
 
 ## Configuration
