@@ -1,6 +1,7 @@
 # Hermes Web UI
 
-Docker Compose configuration for Hermes Agent and the community Hermes Web UI.
+Docker Compose configuration for the community Hermes Web UI. Hermes Agent's
+gateway runs on the host as a systemd user service; Docker runs only the Web UI.
 
 ## Prerequisites
 
@@ -30,18 +31,25 @@ id -u
 id -g
 ```
 
-Then start the frontend:
+Install and start the host gateway once:
 
 ```bash
-docker compose pull
-docker compose up -d --build
+hermes gateway install
+hermes gateway start
+hermes gateway status
 ```
 
-`docker compose pull` updates the published Hermes Agent image. The Web UI is
-built locally from `Dockerfile.webui` because it contains a compatibility patch;
-it is not pulled as a `puda-hermes-webui` image from Docker Hub. The `--build`
-option rebuilds that local image when the Dockerfile or its upstream base image
-changes.
+Then start the Dockerized frontend:
+
+```bash
+docker compose up -d --build --remove-orphans
+```
+
+The Web UI is built locally from `Dockerfile.webui` because it contains a
+compatibility patch; it is not pulled as a `puda-hermes-webui` image from Docker
+Hub. The `--build` option rebuilds that local image when the Dockerfile or its
+upstream base image changes. `--remove-orphans` also removes the legacy Docker
+gateway container if this repository was used before the host-gateway change.
 
 Open <http://localhost:8787>.
 
@@ -61,12 +69,17 @@ Recreate the Web UI container, then open `http://100.x.y.z:8787` from another
 device on the same tailnet:
 
 ```bash
-docker compose up -d --force-recreate hermes-webui
+docker compose up -d --force-recreate --remove-orphans hermes-webui
 ```
 
 ## Configuration
 
-- The current user's `~/.hermes` directory is mounted into both containers.
+- The current user's `~/.hermes` directory is mounted into the Web UI container,
+  so the host gateway and Web UI share configuration, credentials, sessions,
+  skills, and memory.
+- The host Hermes Agent source at `~/.hermes/hermes-agent` is mounted read-only
+  so the Web UI can run its in-process chat agent without starting a second
+  gateway.
 - The current user's `~/workspace` directory is exposed in the Web UI file browser.
 - `HERMES_WEBUI_BIND_ADDRESS` is the host interface address. It defaults to
   `127.0.0.1`; use the host's Tailscale IP for tailnet-only remote access.
@@ -81,7 +94,13 @@ The port is bound to `127.0.0.1` by default. If you set
 
 ```bash
 docker compose logs -f hermes-webui
-docker compose logs -f hermes-agent
 docker compose restart hermes-webui
 docker compose down
+hermes gateway status
+hermes gateway restart
 ```
+
+The Web UI runs browser chat in-process. The host systemd gateway independently
+handles Telegram and other messaging platforms. Do not run `hermes gateway run`
+inside another container with the same platform credentials, because duplicate
+instances compete for the same polling connection.
