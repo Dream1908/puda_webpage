@@ -1,6 +1,6 @@
 # Hermes Web UI
 
-Docker Compose configuration for the community Hermes Web UI.
+Docker Compose configuration for Hermes Agent and the community Hermes Web UI.
 
 ## Prerequisites
 
@@ -55,6 +55,7 @@ expose it on a network interface, set a strong `HERMES_WEBUI_PASSWORD` first.
 
 ```bash
 docker compose logs -f hermes-webui
+docker compose logs -f hermes-agent
 docker compose restart hermes-webui
 docker compose down
 ```

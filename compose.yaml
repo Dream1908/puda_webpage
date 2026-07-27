@@ -1,13 +1,47 @@
 name: ${COMPOSE_PROJECT_NAME:-puda-webpage}
 
 services:
-    hermes-webui:
-        image: ghcr.io/nesquena/hermes-webui:latest
+    hermes-agent:
+        image: nousresearch/hermes-agent:latest
+        command: gateway run
         restart: unless-stopped
         env_file:
             - .env
+        environment:
+            HERMES_HOME: /home/hermes/.hermes
+            HERMES_UID: ${WANTED_UID:-1000}
+            HERMES_GID: ${WANTED_GID:-1000}
+        volumes:
+            - ${HOST_HERMES_HOME:-${HOME:-${USERPROFILE}}/.hermes}:/home/hermes/.hermes
+            - hermes-agent-src:/opt/hermes
+        ports:
+            - "127.0.0.1:8642:8642"
+        networks:
+            - hermes
+
+    hermes-webui:
+        image: ghcr.io/nesquena/hermes-webui:latest
+        restart: unless-stopped
+        depends_on:
+            - hermes-agent
+        env_file:
+            - .env
+        environment:
+            HERMES_HOME: /home/hermeswebui/.hermes
+            HERMES_WEBUI_AGENT_DIR: /home/hermeswebui/.hermes/hermes-agent
+            HERMES_API_URL: http://hermes-agent:8642
         volumes:
             - ${HOST_HERMES_HOME:-${HOME:-${USERPROFILE}}/.hermes}:/home/hermeswebui/.hermes
+            - hermes-agent-src:/home/hermeswebui/.hermes/hermes-agent:ro
             - ${HOST_HERMES_WORKSPACE:-${HOME:-${USERPROFILE}}/workspace}:/workspace
         ports:
             - "127.0.0.1:${HERMES_WEBUI_PORT:-8787}:8787"
+        networks:
+            - hermes
+
+networks:
+    hermes:
+        driver: bridge
+
+volumes:
+    hermes-agent-src:
