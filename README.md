@@ -41,10 +41,8 @@ Open <http://localhost:8787>.
 
 ## Configuration
 
-- `HOST_HERMES_HOME` is the host directory containing the Hermes configuration.
-  It defaults to `~/.hermes`.
-- `HOST_HERMES_WORKSPACE` is the host directory exposed in the Web UI file browser.
-  It defaults to `~/workspace`.
+- The current user's `~/.hermes` directory is mounted into both containers.
+- The current user's `~/workspace` directory is exposed in the Web UI file browser.
 - `HERMES_WEBUI_PORT` is the host port. It defaults to `8787`.
 - `HERMES_WEBUI_PASSWORD` enables password authentication.
 
