@@ -45,15 +45,37 @@ changes.
 
 Open <http://localhost:8787>.
 
+### Tailscale access
+
+To expose the Web UI only on this machine's Tailscale interface, find its
+Tailscale IPv4 address and set it as the bind address in `.env`:
+
+```bash
+tailscale ip -4
+# .env
+HERMES_WEBUI_BIND_ADDRESS=100.x.y.z
+HERMES_WEBUI_PASSWORD=replace-with-a-strong-password
+```
+
+Recreate the Web UI container, then open `http://100.x.y.z:8787` from another
+device on the same tailnet:
+
+```bash
+docker compose up -d --force-recreate hermes-webui
+```
+
 ## Configuration
 
 - The current user's `~/.hermes` directory is mounted into both containers.
 - The current user's `~/workspace` directory is exposed in the Web UI file browser.
+- `HERMES_WEBUI_BIND_ADDRESS` is the host interface address. It defaults to
+  `127.0.0.1`; use the host's Tailscale IP for tailnet-only remote access.
 - `HERMES_WEBUI_PORT` is the host port. It defaults to `8787`.
 - `HERMES_WEBUI_PASSWORD` enables password authentication.
 
-The port is bound to `127.0.0.1` by default. If you change `compose.yaml` to
-expose it on a network interface, set a strong `HERMES_WEBUI_PASSWORD` first.
+The port is bound to `127.0.0.1` by default. If you set
+`HERMES_WEBUI_BIND_ADDRESS` to a network interface, set a strong
+`HERMES_WEBUI_PASSWORD` first.
 
 ## Operations
 

@@ -37,7 +37,7 @@ services:
             - hermes-agent-src:/home/hermeswebui/.hermes/hermes-agent:ro
             - ${HOME:-${USERPROFILE}}/workspace:/workspace
         ports:
-            - "127.0.0.1:${HERMES_WEBUI_PORT:-8787}:8787"
+            - "${HERMES_WEBUI_BIND_ADDRESS:-127.0.0.1}:${HERMES_WEBUI_PORT:-8787}:8787"
         networks:
             - hermes
 
