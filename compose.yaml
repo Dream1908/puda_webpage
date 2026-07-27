@@ -1,0 +1,13 @@
+name: ${COMPOSE_PROJECT_NAME:-puda-webpage}
+
+services:
+    hermes-webui:
+        image: ghcr.io/nesquena/hermes-webui:latest
+        restart: unless-stopped
+        env_file:
+            - .env
+        volumes:
+            - ${HOST_HERMES_HOME:-${HOME:-${USERPROFILE}}/.hermes}:/home/hermeswebui/.hermes
+            - ${HOST_HERMES_WORKSPACE:-${HOME:-${USERPROFILE}}/workspace}:/workspace
+        ports:
+            - "127.0.0.1:${HERMES_WEBUI_PORT:-8787}:8787"
